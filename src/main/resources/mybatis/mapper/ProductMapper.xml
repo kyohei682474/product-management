@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.productmanagement.mapper.ProductMapper">
+
+    <resultMap id="productResultMap" type="com.example.productmanagement.entity.Product">
+        <id property="id" column="id"/>
+        <result property="sku" column="sku"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="status" column="status" typeHandler="org.apache.ibatis.type.EnumTypeHandler"/>
+        <result property="discontinuedAt" column="discontinued_at"/>
+        <result property="discontinuedNote" column="discontinued_note"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findById" resultMap="productResultMap">
+        SELECT
+            id,
+            sku,
+            name,
+            description,
+            status,
+            discontinued_at,
+            discontinued_note,
+            created_at,
+            updated_at
+        FROM products
+        WHERE id = #{id}
+    </select>
+
+    <select id="findBySku" resultMap="productResultMap">
+        SELECT
+            id,
+            sku,
+            name,
+            description,
+            status,
+            discontinued_at,
+            discontinued_note,
+            created_at,
+            updated_at
+        FROM products
+        WHERE sku = #{sku}
+    </select>
+
+    <select id="findAll" resultMap="productResultMap">
+        SELECT
+            id,
+            sku,
+            name,
+            description,
+            status,
+            discontinued_at,
+            discontinued_note,
+            created_at,
+            updated_at
+        FROM products
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO products (
+            sku,
+            name,
+            description,
+            status,
+            discontinued_at,
+            discontinued_note,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{sku},
+            #{name},
+            #{description},
+            #{status},
+            #{discontinuedAt},
+            #{discontinuedNote},
+            NOW(),
+            NOW()
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE products
+        SET
+            name = #{name},
+            description = #{description},
+            status = #{status},
+            discontinued_at = #{discontinuedAt},
+            discontinued_note = #{discontinuedNote},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM products
+        WHERE id = #{id}
+    </delete>
+
+    <select id="existsBySkuExcludingId" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1
+            FROM products
+            WHERE sku = #{sku}
+            <if test="id != null">
+                AND id != #{id}
+            </if>
+        )
+    </select>
+
+</mapper>
+
